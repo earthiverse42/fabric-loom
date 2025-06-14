@@ -37,12 +37,13 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.services.BuildService;
 import org.gradle.api.services.BuildServiceParameters;
 import org.gradle.util.GradleVersion;
+import org.gradle.api.artifacts.VersionCatalog;
+import org.gradle.api.artifacts.VersionCatalogsExtension;
 
 import net.fabricmc.loom.LoomGradleExtension;
 import net.fabricmc.loom.LoomGradlePlugin;
 import net.fabricmc.loom.configuration.InstallerData;
 import net.fabricmc.loom.util.Constants;
-import net.fabricmc.loom.util.LoomVersions;
 import net.fabricmc.tinyremapper.TinyRemapper;
 
 public abstract class JarManifestService implements BuildService<JarManifestService.Params> {
@@ -57,20 +58,33 @@ public abstract class JarManifestService implements BuildService<JarManifestServ
 	}
 
 	public static Provider<JarManifestService> get(Project project) {
-		return project.getGradle().getSharedServices().registerIfAbsent("LoomJarManifestService:" + project.getName(), JarManifestService.class, spec -> {
-			spec.parameters(params -> {
-				LoomGradleExtension extension = LoomGradleExtension.get(project);
-				Optional<String> tinyRemapperVersion = Optional.ofNullable(TinyRemapper.class.getPackage().getImplementationVersion());
+		return project.getGradle().getSharedServices().registerIfAbsent(
+				"LoomJarManifestService:" + project.getName(),
+				JarManifestService.class,
+				spec -> {
+					spec.parameters(params -> {
+						LoomGradleExtension extension = LoomGradleExtension.get(project);
+						Optional<String> tinyRemapperVersion = Optional.ofNullable(TinyRemapper.class.getPackage().getImplementationVersion());
 
-				params.getGradleVersion().set(GradleVersion.current().getVersion());
-				params.getLoomVersion().set(LoomGradlePlugin.LOOM_VERSION);
-				params.getMCEVersion().set(LoomVersions.MIXIN_COMPILE_EXTENSIONS.version());
-				params.getMinecraftVersion().set(project.provider(() -> extension.getMinecraftProvider().minecraftVersion()));
-				params.getTinyRemapperVersion().set(tinyRemapperVersion.orElse("unknown"));
-				params.getFabricLoaderVersion().set(project.provider(() -> Optional.ofNullable(extension.getInstallerData()).map(InstallerData::version).orElse("unknown")));
-				params.getMixinVersion().set(getMixinVersion(project));
-			});
-		});
+						// Use VersionCatalogsExtension (correct and compatible)
+						VersionCatalogsExtension catalogs = project.getExtensions().getByType(VersionCatalogsExtension.class);
+						VersionCatalog libs = catalogs.find("libs").orElseThrow();
+						String mceVersion = libs.findVersion("mixin-compile-extensions").orElseThrow().getRequiredVersion();
+
+						params.getGradleVersion().set(GradleVersion.current().getVersion());
+						params.getLoomVersion().set(LoomGradlePlugin.LOOM_VERSION);
+						params.getMCEVersion().set(mceVersion);
+						params.getMinecraftVersion().set(project.provider(() -> extension.getMinecraftProvider().minecraftVersion()));
+						params.getTinyRemapperVersion().set(tinyRemapperVersion.orElse("unknown"));
+						params.getFabricLoaderVersion().set(project.provider(() ->
+								Optional.ofNullable(extension.getInstallerData())
+										.map(InstallerData::version)
+										.orElse("unknown")
+						));
+						params.getMixinVersion().set(getMixinVersion(project));
+					});
+				}
+		);
 	}
 
 	public void apply(Manifest manifest, Map<String, String> extraValues) {

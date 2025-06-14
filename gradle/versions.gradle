@@ -4,29 +4,6 @@
 import java.nio.file.Files
 import java.time.LocalDate
 
-generateVersionConstants(sourceSets.main, "runtimeLibs", "net/fabricmc/loom/util/LoomVersions")
-generateVersionConstants(sourceSets.test, "testLibs", "net/fabricmc/loom/test/LoomTestVersions")
-
-def generateVersionConstants(def sourceSet, def catalogName, def sourcesName) {
-	def versionCatalog = extensions.getByType(VersionCatalogsExtension.class).named(catalogName)
-
-	def task = tasks.register("${catalogName}GenerateConstants", GenerateVersions.class) {
-		versionCatalog.getLibraryAliases().forEach {
-			def lib = versionCatalog.findLibrary(it).get().get()
-			getVersions().put(it, lib.toString())
-		}
-
-		className = sourcesName
-		headerFile = file("HEADER")
-		outputDir = file("src/${sourceSet.name}/generated")
-	}
-
-	sourceSet.java.srcDir task
-	spotlessGroovyGradle.dependsOn task // Not quite sure why this is needed, but it fixes a warning.
-	compileKotlin.dependsOn task
-	sourcesJar.dependsOn task
-}
-
 abstract class GenerateVersions extends DefaultTask {
 	@Input
 	abstract MapProperty<String, String> getVersions()

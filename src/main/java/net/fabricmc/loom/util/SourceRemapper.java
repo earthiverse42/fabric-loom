@@ -193,7 +193,7 @@ public class SourceRemapper {
 		}
 
 		Set<File> files = project.getConfigurations()
-				.detachedConfiguration(project.getDependencies().create(LoomVersions.JETBRAINS_ANNOTATIONS.mavenNotation()))
+				.detachedConfiguration(project.getDependencies().create("org.jetbrains:annotations:24.0.1"))
 				.resolve();
 
 		for (File file : files) {

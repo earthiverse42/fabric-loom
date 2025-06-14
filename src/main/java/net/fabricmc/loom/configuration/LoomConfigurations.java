@@ -46,7 +46,6 @@ import org.gradle.api.provider.Provider;
 
 import net.fabricmc.loom.LoomGradleExtension;
 import net.fabricmc.loom.util.Constants;
-import net.fabricmc.loom.util.LoomVersions;
 import net.fabricmc.loom.util.gradle.SourceSetHelper;
 
 public abstract class LoomConfigurations implements Runnable {
@@ -149,10 +148,12 @@ public abstract class LoomConfigurations implements Runnable {
 		extendsFrom(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME, Constants.Configurations.MINECRAFT_RUNTIME_LIBRARIES);
 
 		// Add the dev time dependencies
-		getDependencies().add(Constants.Configurations.LOOM_DEVELOPMENT_DEPENDENCIES, LoomVersions.DEV_LAUNCH_INJECTOR.mavenNotation());
-		getDependencies().add(Constants.Configurations.LOOM_DEVELOPMENT_DEPENDENCIES, LoomVersions.TERMINAL_CONSOLE_APPENDER.mavenNotation());
-		getDependencies().add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, LoomVersions.JETBRAINS_ANNOTATIONS.mavenNotation());
-		getDependencies().add(JavaPlugin.TEST_COMPILE_ONLY_CONFIGURATION_NAME, LoomVersions.JETBRAINS_ANNOTATIONS.mavenNotation());
+		// REMOVE: import net.fabricmc.loom.util.LoomVersions;
+
+		getDependencies().add(Constants.Configurations.LOOM_DEVELOPMENT_DEPENDENCIES, "org.quiltmc:dev-launch-injector:1.2.3");
+		getDependencies().add(Constants.Configurations.LOOM_DEVELOPMENT_DEPENDENCIES, "org.apache.logging.log4j:log4j-appender:2.19.0");
+		getDependencies().add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "org.jetbrains:annotations:24.0.1");
+		getDependencies().add(JavaPlugin.TEST_COMPILE_ONLY_CONFIGURATION_NAME, "org.jetbrains:annotations:24.0.1");
 	}
 
 	private NamedDomainObjectProvider<Configuration> register(String name, Role role) {

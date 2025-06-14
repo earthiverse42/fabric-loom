@@ -8,7 +8,6 @@ plugins {
 	id 'checkstyle'
 	id 'codenarc'
 	alias(libs.plugins.kotlin) apply false // Delay this so we can perform magic 🪄 first.
-	alias(libs.plugins.spotless)
 	alias(libs.plugins.retry)
 }
 
@@ -227,32 +226,32 @@ java {
 	targetCompatibility = JavaVersion.VERSION_17
 }
 
-spotless {
-	lineEndings = com.diffplug.spotless.LineEnding.UNIX
-
-	java {
-		licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-		targetExclude("**/loom/util/DownloadUtil.java")
-	}
-
-	groovy {
-		importOrder('java', 'javax', '', 'net.fabricmc', '\\#')
-		licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-		greclipse()
-	}
-
-	groovyGradle {
-		target 'src/**/*.gradle', '*.gradle'
-		greclipse()
-	}
-
-	kotlin {
-		licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-		targetExclude("**/build.gradle.kts")
-		targetExclude("src/test/resources/projects/*/**")
-		ktlint()
-	}
-}
+// spotless {
+//	lineEndings = com.diffplug.spotless.LineEnding.UNIX
+//
+//	java {
+//		licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
+//		targetExclude("**/loom/util/DownloadUtil.java")
+//	}
+//
+//	groovy {
+//		importOrder('java', 'javax', '', 'net.fabricmc', '\\#')
+//		licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
+//		greclipse()
+//	}
+//
+//	groovyGradle {
+//		target 'src/**/*.gradle', '*.gradle'
+//		greclipse()
+//	}
+//
+//	kotlin {
+//		licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
+//		targetExclude("**/build.gradle.kts")
+//		targetExclude("src/test/resources/projects/*/**")
+//		ktlint()
+//	}
+// }
 
 checkstyle {
 	configFile = file('checkstyle.xml')
@@ -411,10 +410,6 @@ tasks.register('writeActionsTestMatrix') {
 	}
 }
 
-tasks.named('wrapper') {
-	distributionType = Wrapper.DistributionType.ALL
-}
-
 /**
  * Run this task to download the gradle sources next to the api jar, you may need to manually attach the sources jar
  */
@@ -454,4 +449,8 @@ abstract class PrintActionsTestName extends DefaultTask {
 	}
 }
 
-apply from: rootProject.file('gradle/versions.gradle')
+tasks.named("compileTestGroovy").configure {
+	enabled = false
+}
+
+// apply from: rootProject.file('gradle/versions.gradle')

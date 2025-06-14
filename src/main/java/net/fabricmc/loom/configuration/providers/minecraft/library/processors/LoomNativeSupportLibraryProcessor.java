@@ -30,7 +30,6 @@ import java.util.function.Predicate;
 import net.fabricmc.loom.configuration.providers.minecraft.library.Library;
 import net.fabricmc.loom.configuration.providers.minecraft.library.LibraryContext;
 import net.fabricmc.loom.configuration.providers.minecraft.library.LibraryProcessor;
-import net.fabricmc.loom.util.LoomVersions;
 import net.fabricmc.loom.util.Platform;
 
 public class LoomNativeSupportLibraryProcessor extends LibraryProcessor {
@@ -56,7 +55,7 @@ public class LoomNativeSupportLibraryProcessor extends LibraryProcessor {
 
 	@Override
 	public Predicate<Library> apply(Consumer<Library> dependencyConsumer) {
-		dependencyConsumer.accept(Library.fromMaven(LoomVersions.NATIVE_SUPPORT.mavenNotation(), Library.Target.LOCAL_MOD));
+		dependencyConsumer.accept(Library.fromMaven("org.lwjgl:lwjgl:3.3.1", Library.Target.LOCAL_MOD));
 		return ALLOW_ALL;
 	}
 }

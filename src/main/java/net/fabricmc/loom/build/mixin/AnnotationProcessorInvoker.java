@@ -46,7 +46,6 @@ import net.fabricmc.loom.configuration.ide.idea.IdeaUtils;
 import net.fabricmc.loom.configuration.providers.minecraft.MinecraftSourceSets;
 import net.fabricmc.loom.extension.MixinExtension;
 import net.fabricmc.loom.util.Constants;
-import net.fabricmc.loom.util.LoomVersions;
 
 /**
  * Normally javac invokes annotation processors, but when the scala or kapt plugin are installed they will want to invoke
@@ -141,8 +140,7 @@ public abstract class AnnotationProcessorInvoker<T extends Task> {
 				);
 
 				// Add Mixin and mixin extensions (fabric-mixin-compile-extensions pulls mixin itself too)
-				project.getDependencies().add(processorConfig.getName(),
-						LoomVersions.MIXIN_COMPILE_EXTENSIONS.mavenNotation());
+				project.getDependencies().add(processorConfig.getName(), "net.fabricmc:mixin-compile-extensions:0.6.1");
 			}
 		}
 
