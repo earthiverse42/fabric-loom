@@ -48,7 +48,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 group = 'net.fabricmc'
-def baseVersion = '1.8'
+def baseVersion = '1.8.5'
 
 def ENV = System.getenv()
 if (ENV.BUILD_NUMBER) {
@@ -58,7 +58,7 @@ if (ENV.BUILD_NUMBER) {
 		version = baseVersion + '.' + ENV.BUILD_NUMBER
 	}
 } else {
-	version = baseVersion + '.local'
+	version = baseVersion + '-local'
 }
 
 // We must build against the version of Kotlin Gradle ships with.
@@ -449,8 +449,4 @@ abstract class PrintActionsTestName extends DefaultTask {
 	}
 }
 
-tasks.named("compileTestGroovy").configure {
-	enabled = false
-}
-
-// apply from: rootProject.file('gradle/versions.gradle')
+apply from: rootProject.file('quilt-loom/gradle/versions.gradle')
