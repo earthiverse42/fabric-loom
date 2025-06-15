@@ -47,8 +47,10 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 	}
 }
 
-group = 'net.fabricmc'
-def baseVersion = '1.8.5'
+group = 'org.quiltmc'
+def baseVersion = '1.8.6'
+
+archivesBaseName = 'loom'
 
 def ENV = System.getenv()
 if (ENV.BUILD_NUMBER) {
@@ -75,6 +77,10 @@ repositories {
 	maven {
 		name = 'Fabric'
 		url = 'https://maven.fabricmc.net/'
+	}
+	maven {
+		name = 'QuiltMC'
+		url = 'https://maven.quiltmc.org/repository/release'
 	}
 	mavenCentral()
 }
@@ -212,10 +218,6 @@ jar {
 	from sourceSets.vineflower.output.classesDirs
 }
 
-base {
-	archivesName = project.name
-}
-
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 17
 }
@@ -272,8 +274,8 @@ codenarc {
 
 gradlePlugin {
 	plugins {
-		fabricLoom {
-			id = 'fabric-loom'
+		loom {
+			id = 'org.quiltmc.loom'
 			implementationClass = 'net.fabricmc.loom.bootstrap.LoomGradlePluginBootstrap'
 		}
 	}
@@ -317,7 +319,6 @@ import org.w3c.dom.Node
 publishing {
 	publications {
 		if (!ENV.EXPERIMENTAL) {
-			// Also publish a snapshot so people can use the latest version if they wish
 			snapshot(MavenPublication) { publication ->
 				groupId project.group
 				artifactId project.base.archivesName.get()
@@ -326,22 +327,20 @@ publishing {
 				from components.java
 			}
 
-			// Manually crate the plugin marker for snapshot versions
 			snapshotPlugin(MavenPublication) { publication ->
-				groupId 'fabric-loom'
-				artifactId 'fabric-loom.gradle.plugin'
+				groupId 'org.quiltmc.loom'
+				artifactId 'quilt-loom.gradle.plugin'
 				version baseVersion + '-SNAPSHOT'
 
 				pom.withXml({
-					// Based off org.gradle.plugin.devel.plugins.MavenPluginPublishPlugin
 					Element root = asElement()
 					Document document = root.getOwnerDocument()
 					Node dependencies = root.appendChild(document.createElement('dependencies'))
 					Node dependency = dependencies.appendChild(document.createElement('dependency'))
 					Node groupId = dependency.appendChild(document.createElement('groupId'))
-					groupId.setTextContent('net.fabricmc')
+					groupId.setTextContent('org.quiltmc.loom') // updated
 					Node artifactId = dependency.appendChild(document.createElement('artifactId'))
-					artifactId.setTextContent('fabric-loom')
+					artifactId.setTextContent('quilt-loom') // updated
 					Node version = dependency.appendChild(document.createElement('version'))
 					version.setTextContent(baseVersion + '-SNAPSHOT')
 				})
@@ -449,4 +448,4 @@ abstract class PrintActionsTestName extends DefaultTask {
 	}
 }
 
-apply from: rootProject.file('quilt-loom/gradle/versions.gradle')
+apply from: rootProject.file('fabric-loom/gradle/versions.gradle')
